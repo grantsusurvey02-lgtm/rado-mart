@@ -83,20 +83,20 @@ textarea.f{min-height:90px;resize:vertical}
   <img class="lg big" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART - Skills meet opportunity">
   <h1>Find the right freelancer for any job</h1>
   <p>Hire talented people or sell your skills to clients worldwide.</p>
-  <div class="sr"><input id="q" placeholder="Try: logo, website, video"><button id="sb">Search</button></div>
+  <div class="sr"><input id="q" type="search" name="rm-search" autocomplete="off" placeholder="Try: logo, website, video"><button id="sb">Search</button></div>
 </div></div>
 
 <main class="w">
   <section class="s"><h2>Browse categories</h2><div class="cats" id="cats"></div></section>
   <section class="s" id="svs"><h2>Popular services</h2><div class="grid" id="sv"></div>
     <p class="note" id="note">These are sample listings for the design preview. Real services from freelancers will appear here as soon as they are published.</p></section>
-  <section class="s"><h2>Featured freelancers</h2><div class="fr" id="fr"></div></section>
+  <section class="s" id="frs"><h2>Featured freelancers</h2><div class="fr" id="fr"></div></section>
   <section class="s"><h2>How RADO MART works</h2><div class="how">
     <div><b>1. Find</b><br>Search services and compare freelancers.</div>
     <div><b>2. Order</b><br>Pick a package and place your order.</div>
     <div><b>3. Receive</b><br>Get your work delivered and review it.</div></div></section>
 </main>
-<footer><div class="w">&copy; RADO MART. Skills meet opportunity.</div></footer>
+<footer><div class="w">&copy; RADO MART. Skills meet opportunity. <b>Version: reviews-v3</b></div></footer>
 
 <div class="md" id="md"><div class="box">
   <button class="x" id="cl" aria-label="Close">&times;</button>
@@ -132,6 +132,7 @@ textarea.f{min-height:90px;resize:vertical}
   <div class="sm" id="dM" style="margin-top:4px"></div>
   <div class="big2" id="dP"></div>
   <p id="dD" style="white-space:pre-wrap;line-height:1.5"></p>
+  <div id="dR"></div>
   <label for="oNote">Message to the freelancer (optional)</label>
   <textarea class="f" id="oNote" maxlength="1000" placeholder="Tell them what you need"></textarea>
   <button class="go" id="ord">Order now</button>
@@ -145,6 +146,17 @@ textarea.f{min-height:90px;resize:vertical}
   <div id="olist" style="margin-top:6px"></div>
 </div></div>
 
+<div class="md" id="rm"><div class="box">
+  <button class="x" id="rcl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)">Leave a review</b>
+  <div class="sm" id="rT" style="margin-top:4px"></div>
+  <div id="rS" style="font-size:36px;letter-spacing:4px;margin:10px 0"></div>
+  <label for="rC">Comment (optional)</label>
+  <textarea class="f" id="rC" maxlength="500" placeholder="How was your experience?"></textarea>
+  <button class="go" id="rGo">Submit review</button>
+  <div class="msg" id="rmsg" role="status"></div>
+</div></div>
+
 <script>
 const BASE="https://mhtjgbcewfnmnsvvgnli.supabase.co";
 const KEY="sb_publishable_0ozDkEkihNyFxsLf7Zegyw_M9NiCp9q";
@@ -152,8 +164,7 @@ const $=i=>document.getElementById(i);
 const CATS=[["🎨","Design"],["✍️","Writing"],["💻","Programming"],["🎬","Video"],["📣","Marketing"],["🎵","Music"],["📊","Business"],["📷","Photo"]];
 const ICON={};CATS.forEach(c=>ICON[c[1]]=c[0]);
 const SV=[["Modern logo design for your brand","Design","Amaka O.",15,"4.9","🎨"],["SEO blog articles that rank","Writing","Tunde A.",20,"4.8","✍️"],["Responsive business website","Programming","Chinedu E.",80,"5.0","💻"],["Short video editing for social media","Video","Zainab K.",30,"4.9","🎬"],["Social media ad campaign setup","Marketing","Ife B.",40,"4.7","📣"],["Voice-over for ads and explainers","Music","Sam D.",25,"4.8","🎵"],["Business plan and pitch deck","Business","Ngozi P.",60,"4.9","📊"],["Product photo retouching","Photo","Dayo L.",12,"4.8","📷"]];
-const FR=[["Amaka O.","Brand designer","4.9"],["Chinedu E.","Web developer","5.0"],["Zainab K.","Video editor","4.9"],["Tunde A.","Content writer","4.8"]];
-let cat="",q="",mode="login",session=null,REAL=[],cur=null;
+let cat="",q="",mode="login",session=null,REAL=[],cur=null,RV=[],rate=0,rOrd=null;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
 function drawCats(){$("cats").innerHTML=CATS.map(c=>'<button class="cat'+(cat===c[1]?" on":"")+'" data-c="'+c[1]+'"><span>'+c[0]+'</span>'+c[1]+'</button>').join("");
@@ -161,17 +172,24 @@ function drawCats(){$("cats").innerHTML=CATS.map(c=>'<button class="cat'+(cat===
 function drawSv(){const real=REAL.length>0,base=real?REAL:SV;
   const l=[];base.forEach((s,i)=>{if((!cat||s[1]===cat)&&(!q||(s[0]+" "+s[1]+" "+s[2]).toLowerCase().includes(q)))l.push([s,i])});
   $("note").classList.toggle("hide",real);
-  $("sv").innerHTML=l.length?l.map(x=>{const s=x[0];return'<div class="card"'+(real?' data-i="'+x[1]+'"':'')+'><div class="th">'+s[5]+'</div><div class="ci"><b>'+esc(s[0])+'</b><div class="sm">'+esc(s[2])+' · ★ '+esc(s[4])+'</div><div class="pr">From $'+esc(s[3])+'</div></div></div>'}).join(""):'<p class="sm">No services match yet. Try another word.</p>';
+  $("sv").innerHTML=l.length?l.map(x=>{const s=x[0],r=real?rtS(s[6]):s[4];return'<div class="card"'+(real?' data-i="'+x[1]+'"':'')+'><div class="th">'+s[5]+'</div><div class="ci"><b>'+esc(s[0])+'</b><div class="sm">'+esc(s[2])+' · ★ '+esc(r)+'</div><div class="pr">From $'+esc(s[3])+'</div></div></div>'}).join(""):'<p class="sm">No services match yet. Try another word.</p>';
   document.querySelectorAll(".card[data-i]").forEach(c=>c.onclick=()=>openSvc(+c.dataset.i));}
-function drawFr(){$("fr").innerHTML=FR.map(f=>'<div class="fc"><div class="av">'+f[0][0]+'</div><b>'+f[0]+'</b><div class="sm">'+f[1]+'</div><div class="sm">★ '+f[2]+'</div></div>').join("");}
-function doSearch(){q=$("q").value.trim().toLowerCase();drawSv();$("svs").scrollIntoView({behavior:"smooth"});}
+function drawFr(){const m={};REAL.forEach(s=>{const k=s[8];if(!m[k])m[k]={id:k,n:s[2],c:s[1],k:0};m[k].k++});const l=Object.values(m);$("frs").classList.toggle("hide",!l.length);
+  $("fr").innerHTML=l.map(f=>'<div class="fc" data-n="'+esc(f.n)+'" style="cursor:pointer"><div class="av">'+esc((f.n[0]||"?").toUpperCase())+'</div><b>'+esc(f.n)+'</b><div class="sm">'+esc(f.c)+' · '+f.k+(f.k>1?" services":" service")+'</div><div class="sm">★ '+esc(rtF(f.id))+'</div></div>').join("");
+  document.querySelectorAll(".fc[data-n]").forEach(c=>c.onclick=()=>{$("q").value=c.dataset.n;doSearch()})}function doSearch(){q=$("q").value.trim().toLowerCase();drawSv();$("svs").scrollIntoView({behavior:"smooth"});}
 $("sb").onclick=doSearch;$("q").onkeydown=e=>{if(e.key==="Enter")doSearch()};
 
+function avg(l){if(!l.length)return"New";return(l.reduce((t,x)=>t+x.rating,0)/l.length).toFixed(1)+" ("+l.length+")"}
+function rtS(id){return avg(RV.filter(x=>x.service_id===id))}
+function rtF(id){return avg(RV.filter(x=>x.freelancer_id===id))}
+function stars(n){return"★".repeat(n)+"☆".repeat(5-n)}
 async function api(path,opts,token){const h={apikey:KEY,"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
   const r=await fetch(BASE+path,Object.assign({},opts||{},{headers:h}));let d=null;try{d=await r.json()}catch(e){}return{ok:r.ok,data:d}}
 function errText(d){const m=d&&(d.msg||d.error_description||d.message);if(m&&/jwt expired/i.test(m))return"Your login expired. Please log out and log in again.";return m||"Something went wrong. Please try again."}
 async function loadSv(){const r=await api("/rest/v1/services?select=id,title,category,price_usd,description,freelancer_id,profiles(full_name)&is_active=eq.true&order=created_at.desc&limit=60");
-  REAL=r.ok&&Array.isArray(r.data)?r.data.map(x=>[x.title,x.category,(x.profiles&&x.profiles.full_name)||"Freelancer",x.price_usd,"New",ICON[x.category]||"⭐",x.id,x.description,x.freelancer_id]):[];drawSv()}
+  REAL=r.ok&&Array.isArray(r.data)?r.data.map(x=>[x.title,x.category,(x.profiles&&x.profiles.full_name)||"Freelancer",x.price_usd,"New",ICON[x.category]||"⭐",x.id,x.description,x.freelancer_id]):[];drawSv();drawFr()}
+async function loadRv(){const r=await api("/rest/v1/reviews?select=id,order_id,service_id,freelancer_id,rating,comment,created_at&order=created_at.desc&limit=300");
+  RV=r.ok&&Array.isArray(r.data)?r.data:[];drawSv();drawFr()}
 
 function say(t,ok){const m=$("msg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
 function setMode(m){mode=m;$("tabLogin").classList.toggle("on",m==="login");$("tabReg").classList.toggle("on",m==="register");$("regOnly").classList.toggle("hide",m==="login");$("go").textContent=m==="login"?"Log in":"Create account";say("")}
@@ -211,7 +229,7 @@ $("go").onclick=async()=>{
   finally{$("go").disabled=false}};
 
 $("out").onclick=async()=>{try{if(session)await api("/auth/v1/logout",{method:"POST"},session.access_token)}catch(e){}
-  forget();session=null;$("dm").classList.remove("on");$("xm").classList.remove("on");$("user").classList.add("hide");$("guest").classList.remove("hide")};
+  forget();session=null;$("rm").classList.remove("on");$("dm").classList.remove("on");$("xm").classList.remove("on");$("user").classList.add("hide");$("guest").classList.remove("hide")};
 
 function dmsg(t,ok){const m=$("dmsg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
 async function myList(){
@@ -234,6 +252,8 @@ $("pub").onclick=async()=>{
 function omsg(t,ok){const m=$("omsg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
 function openSvc(i){cur=REAL[i];if(!cur)return;
   $("dT").textContent=cur[0];$("dM").textContent=cur[2]+" · "+cur[1];$("dP").textContent="$"+cur[3];$("dD").textContent=cur[7]||"";
+  const rv=RV.filter(x=>x.service_id===cur[6]);
+  $("dR").innerHTML=rv.length?'<h2 style="font-size:17px;margin:14px 0 4px">Reviews · ★ '+esc(avg(rv))+'</h2>'+rv.slice(0,10).map(x=>'<div class="row" style="display:block"><div style="color:#f5a623">'+stars(x.rating)+'</div>'+(x.comment?'<div>'+esc(x.comment)+'</div>':'')+'<div class="sm">Verified buyer · '+esc(new Date(x.created_at).toLocaleDateString())+'</div></div>').join(""):'<p class="sm">No reviews yet.</p>';
   $("oNote").value="";omsg("");$("om").classList.add("on")}
 $("ocl").onclick=()=>$("om").classList.remove("on");
 $("ord").onclick=async()=>{
@@ -248,15 +268,19 @@ $("ord").onclick=async()=>{
 
 function xmsg(t){const m=$("xmsg");m.textContent=t;m.className="msg err"}
 function actions(o){
-  const me=session.user.id,buyer=o.buyer_id===me,a=[];
+  const me=session.user.id,buyer=o.buyer_id===me,a=[];let extra="";
   if(!buyer){
     if(o.status==="pending"){a.push(["accepted","Accept",""]);a.push(["cancelled","Decline","no"])}
     else if(o.status==="accepted")a.push(["delivered","Mark delivered",""]);
   }else{
     if(o.status==="pending")a.push(["cancelled","Cancel order","no"]);
     else if(o.status==="delivered")a.push(["completed","Mark completed",""]);
+    else if(o.status==="completed"){
+      const rv=RV.find(x=>x.order_id===o.id);
+      extra=rv?'<div class="sm" style="margin-top:6px;color:#f5a623">You rated this '+stars(rv.rating)+'</div>':'<div class="acts"><button class="b p rev" style="padding:7px 11px;font-size:13px" data-o="'+esc(o.id)+'" data-t="'+esc(o.service_title)+'">Leave a review</button></div>';
+    }
   }
-  return a.length?'<div class="acts">'+a.map(x=>'<button class="b act '+(x[2]||"p")+'" data-id="'+esc(o.id)+'" data-s="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>':""}
+  return(a.length?'<div class="acts">'+a.map(x=>'<button class="b act '+(x[2]||"p")+'" data-id="'+esc(o.id)+'" data-s="'+x[0]+'">'+x[1]+'</button>').join("")+'</div>':"")+extra}
 async function loadOrders(){
   const r=await api("/rest/v1/orders?select=id,service_title,price_usd,status,created_at,buyer_id,note&order=created_at.desc&limit=50",{},session.access_token);
   if(!r.ok){$("olist").innerHTML='<p class="sm">'+esc(errText(r.data))+'</p>';return}
@@ -267,12 +291,27 @@ async function loadOrders(){
       const u=await api("/rest/v1/orders?id=eq."+b.dataset.id,{method:"PATCH",body:JSON.stringify({status:b.dataset.s})},session.access_token);
       if(!u.ok)xmsg(errText(u.data));
     }catch(e){xmsg("Could not reach the server. Try again.")}
-    loadOrders()})}
+    loadOrders()});
+  document.querySelectorAll(".rev").forEach(b=>b.onclick=()=>openReview(b.dataset.o,b.dataset.t))}
 $("ords").onclick=()=>{$("xmsg").textContent="";$("olist").innerHTML='<p class="sm">Loading...</p>';$("xm").classList.add("on");loadOrders()};
 $("xcl").onclick=()=>$("xm").classList.remove("on");
 
+function rmsg(t,ok){const m=$("rmsg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
+function drawStars(){$("rS").innerHTML=[1,2,3,4,5].map(n=>'<span data-v="'+n+'" style="cursor:pointer;color:'+(n<=rate?"#f5a623":"#c9d6ce")+'">★</span>').join("");
+  document.querySelectorAll("#rS span").forEach(e=>e.onclick=()=>{rate=+e.dataset.v;drawStars()})}
+function openReview(oid,title){rOrd=oid;rate=0;$("rC").value="";rmsg("");$("rT").textContent=title;drawStars();$("rm").classList.add("on")}
+$("rcl").onclick=()=>$("rm").classList.remove("on");
+$("rGo").onclick=async()=>{
+  if(!rate){rmsg("Tap a star to choose your rating.");return}
+  $("rGo").disabled=true;rmsg("Posting...",true);
+  try{
+    const r=await api("/rest/v1/reviews",{method:"POST",body:JSON.stringify({order_id:rOrd,rating:rate,comment:$("rC").value.trim()||null})},session.access_token);
+    if(r.ok){$("rm").classList.remove("on");await loadRv();loadOrders()}else rmsg(errText(r.data));
+  }catch(e){rmsg("Could not reach the server. Try again.")}
+  finally{$("rGo").disabled=false}};
+
 $("sCat").innerHTML=CATS.map(c=>"<option>"+c[1]+"</option>").join("");
-drawCats();drawSv();drawFr();loadSv();
+drawCats();drawSv();drawFr();loadSv();loadRv();
 const saved=recall();if(saved&&saved.access_token&&saved.user)showUser(saved);
 </script>
 </body>
