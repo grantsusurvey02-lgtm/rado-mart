@@ -47,4 +47,46 @@ h2{margin:0 0 14px;font-size:21px;color:var(--gd)}
 .fr{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .fc{background:#fff;border:1px solid var(--l);border-radius:14px;padding:16px;text-align:center}
 .av{width:56px;height:56px;border-radius:50%;background:var(--gd);color:#fff;font-weight:800;display:grid;place-items:center;margin:0 auto 8px}
-.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220p
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.how div{background:#fff;border:1px solid var(--l);border-radius:14px;padding:16px}
+.how b{color:var(--gd)}
+.note{font-size:13px;color:var(--m);margin-top:10px}
+footer{margin-top:32px;background:var(--dk);color:#bfe3cf;padding:20px 0;font-size:14px}
+.md{position:fixed;inset:0;background:rgba(4,39,27,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.md.on{display:flex}
+.box{width:100%;max-width:400px;max-height:94vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;position:relative}
+.x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:26px;color:var(--m)}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:11px;margin:14px 0 4px}
+.tabs button{flex:1;border:0;background:none;padding:11px;border-radius:8px;font-weight:600;color:var(--m)}
+.tabs button.on{background:#fff;color:var(--gd);outline:1px solid var(--l)}
+label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
+.f{width:100%;padding:12px;border:1px solid var(--l);border-radius:10px;font-size:16px;background:#fff;color:var(--t);font-family:inherit}
+textarea.f{min-height:90px;resize:vertical}
+.go{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--g);color:#fff;font-size:16px;font-weight:700}
+.go:disabled{opacity:.6}
+.msg{min-height:22px;margin-top:12px;font-size:14px}
+.err{color:#b3261e}.ok{color:var(--gd)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--l);font-size:14px}
+.st{display:inline-block;padding:2px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--l);font-size:12px;font-weight:600;color:var(--gd)}
+.big2{font-size:24px;font-weight:800;color:var(--gd);margin:8px 0}
+.hide{display:none}
+</style>
+</head>
+<body>
+<header><div class="w nav">
+  <img class="lg" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART">
+  <div class="btns" id="guest"><button class="b" id="openLogin">Log in</button><button class="b p" id="openJoin">Join</button></div>
+  <div class="btns hide" id="user"><span class="hi" id="hi"></span><button class="b p hide" id="dash">My services</button><button class="b" id="ords">My orders</button><button class="b" id="out">Log out</button></div>
+</div></header>
+
+<div class="hero"><div class="w">
+  <img class="lg big" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART - Skills meet opportunity">
+  <h1>Find the right freelancer for any job</h1>
+  <p>Hire talented people or sell your skills to clients worldwide.</p>
+  <div class="sr"><input id="q" placeholder="Try: logo, website, video"><button id="sb">Search</button></div>
+</div></div>
+
+<main class="w">
+  <section class="s"><h2>Browse categories</h2><div class="cats" id="cats"></div></section>
+  <section class="s" id="svs"><h2>Popular services</h2><div class="grid" id="sv"></div>
+    <p class="note" id="note">These are sample listings for the design preview. Real services
