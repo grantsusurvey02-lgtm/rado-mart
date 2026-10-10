@@ -1,1 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RADO MART | Skills meet opportunity</title>
+<style>
+:root{--green:#0f7a4a;--dark:#0a4d2f;--bg:#f4f9f6;--text:#10241a;--muted:#5b6f64;--line:#d6e5dc}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:42px;height:42px;border-radius:11px;background:var(--dark);color:#fff;font-weight:800;display:grid;place-items:center;border-bottom:4px solid var(--green)}
+.name{font-size:21px;font-weight:800;color:var(--dark);letter-spacing:.5px}
+.tag{margin:6px 0 20px;color:var(--muted);font-size:14px}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:11px}
+.tabs button{flex:1;border:0;background:none;padding:11px;border-radius:8px;font-size:15px;font-weight:600;color:var(--muted)}
+.tabs button.on{background:#fff;color:var(--dark);outline:1px solid var(--line)}
+label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--text)}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.go{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--green);color:#fff;font-size:16px;font-weight:700}
+.go:disabled{opacity:.6}
+.msg{min-height:22px;margin-top:12px;font-size:14px}
+.err{color:#b3261e}.ok{color:var(--green)}
+.hide{display:none}
+.who{font-size:20px;font-weight:700;margin:4px 0}
+.role{display:inline-block;margin:6px 0 16px;padding:4px 12px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--dark);font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="brand"><div class="mark">RM</div><div class="name">RADO MART</div></div>
+  <p class="tag">Skills meet opportunity</p>
 
+  <section id="auth">
+    <div class="tabs">
+      <button id="tabLogin" class="on" type="button">Log in</button>
+      <button id="tabReg" type="button">Create account</button>
+    </div>
+    <div id="regOnly" class="hide">
+      <label for="fullName">Full name</label>
+      <input id="fullName" autocomplete="name">
+      <label for="role">I want to</label>
+      <select id="role">
+        <option value="buyer">Hire freelancers</option>
+        <option value="freelancer">Sell my services</option>
+      </select>
+    </div>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="email">
+    <label for="password">Password (6+ characters)</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button id="go" class="go" type="button">Log in</button>
+    <div id="msg" class="msg" role="status"></div>
+  </section>
+
+  <section id="home" class="hide">
+    <div class="who" id="who"></div>
+    <span class="role" id="roleTag"></span>
+    <p class="tag" style="margin-top:0">You are signed in. Your dashboard is coming next.</p>
+    <button id="out" class="go" type="button">Log out</button>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = "https://mhtjgbcewfnmnsvvgnli.supabase.co";
+const SUPABASE_KEY = "sb_publishable_0ozDkEkihNyFxsLf7Zegyw_M9NiCp9q";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let mode = "login";
+
+function say(text, ok){ const m=$("msg"); m.textContent=text; m.className="msg "+(ok?"ok":"err"); }
+
+function setMode(m){
+  mode = m;
+  $("tabLogin").classList.toggle("on", m==="login");
+  $("tabReg").classList.toggle("on", m==="register");
+  $("regOnly").classList.toggle("hide", m==="login");
+  $("go").textContent = m==="login" ? "Log in" : "Create account";
+  $("password").autocomplete = m==="login" ? "current-password" : "new-password";
+  say("");
+}
+$("tabLogin").onclick = () => setMode("login");
+$("tabReg").onclick = () => setMode("register");
+
+async function showHome(user){
+  $("auth").classList.add("hide");
+  $("home").classList.remove("hide");
+  const { data } = await db.from("profiles").select("full_name,role").eq("id", user.id).single();
+  $("who").textContent = "Welcome, " + ((data && data.full_name) || user.email);
+  $("roleTag").textContent = data ? (data.role === "freelancer" ? "Freelancer" : data.role === "admin" ? "Admin" : "Buyer") : "Member";
+}
+
+$("go").onclick = async () => {
+  const email = $("email").value.trim(), password = $("password").value;
+  if(!email || password.length < 6){ say("Enter your email and a password of at least 6 characters."); return; }
+  $("go").disabled = true; say("Please wait...", true);
+  try{
+    if(mode === "register"){
+      const full_name = $("fullName").value.trim();
+      if(!full_name){ say("Enter your full name."); return; }
+      const { data, error } = await db.auth.signUp({ email, password, options:{ data:{ full_name, role:$("role").value } } });
+      if(error){ say(error.message); return; }
+      if(data.session){ await showHome(data.user); }
+      else { sa
