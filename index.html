@@ -63,15 +63,13 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--green);out
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-const SUPABASE_URL = "https://mhtjgbcewfnmnsvvgnli.supabase.co";
-const SUPABASE_KEY = "sb_publishable_0ozDkEkihNyFxsLf7Zegyw_M9NiCp9q";
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BASE = "https://mhtjgbcewfnmnsvvgnli.supabase.co";
+const KEY = "sb_publishable_0ozDkEkihNyFxsLf7Zegyw_M9NiCp9q";
 const $ = id => document.getElementById(id);
-let mode = "login";
+let mode = "login", session = null;
 
-function say(text, ok){ const m=$("msg"); m.textContent=text; m.className="msg "+(ok?"ok":"err"); }
+function say(t, ok){ const m=$("msg"); m.textContent=t; m.className="msg "+(ok?"ok":"err"); }
 
 function setMode(m){
   mode = m;
@@ -79,29 +77,70 @@ function setMode(m){
   $("tabReg").classList.toggle("on", m==="register");
   $("regOnly").classList.toggle("hide", m==="login");
   $("go").textContent = m==="login" ? "Log in" : "Create account";
-  $("password").autocomplete = m==="login" ? "current-password" : "new-password";
   say("");
 }
 $("tabLogin").onclick = () => setMode("login");
 $("tabReg").onclick = () => setMode("register");
 
-async function showHome(user){
+async function api(path, opts, token){
+  const h = { apikey: KEY, "Content-Type": "application/json" };
+  if(token) h.Authorization = "Bearer " + token;
+  const r = await fetch(BASE + path, Object.assign({}, opts || {}, { headers: h }));
+  let d = null; try { d = await r.json(); } catch(e) {}
+  return { ok: r.ok, data: d };
+}
+function errText(d){ return (d && (d.msg || d.error_description || d.message)) || "Something went wrong. Please try again."; }
+function store(s){ try { localStorage.setItem("rm_session", JSON.stringify(s)); } catch(e) {} }
+function recall(){ try { return JSON.parse(localStorage.getItem("rm_session")); } catch(e) { return null; } }
+function forget(){ try { localStorage.removeItem("rm_session"); } catch(e) {} }
+
+async function showHome(s){
+  const r = await api("/rest/v1/profiles?id=eq." + s.user.id + "&select=full_name,role", {}, s.access_token);
+  if(!r.ok){ forget(); return false; }
+  const p = r.data && r.data[0];
+  session = s;
   $("auth").classList.add("hide");
   $("home").classList.remove("hide");
-  const { data } = await db.from("profiles").select("full_name,role").eq("id", user.id).single();
-  $("who").textContent = "Welcome, " + ((data && data.full_name) || user.email);
-  $("roleTag").textContent = data ? (data.role === "freelancer" ? "Freelancer" : data.role === "admin" ? "Admin" : "Buyer") : "Member";
+  $("who").textContent = "Welcome, " + ((p && p.full_name) || s.user.email);
+  $("roleTag").textContent = p ? (p.role === "freelancer" ? "Freelancer" : p.role === "admin" ? "Admin" : "Buyer") : "Member";
+  return true;
 }
 
 $("go").onclick = async () => {
   const email = $("email").value.trim(), password = $("password").value;
   if(!email || password.length < 6){ say("Enter your email and a password of at least 6 characters."); return; }
+  const full_name = $("fullName").value.trim();
+  if(mode === "register" && !full_name){ say("Enter your full name."); return; }
   $("go").disabled = true; say("Please wait...", true);
   try{
+    let r;
     if(mode === "register"){
-      const full_name = $("fullName").value.trim();
-      if(!full_name){ say("Enter your full name."); return; }
-      const { data, error } = await db.auth.signUp({ email, password, options:{ data:{ full_name, role:$("role").value } } });
-      if(error){ say(error.message); return; }
-      if(data.session){ await showHome(data.user); }
-      else { sa
+      r = await api("/auth/v1/signup", { method: "POST", body: JSON.stringify({ email: email, password: password, data: { full_name: full_name, role: $("role").value } }) });
+    } else {
+      r = await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: email, password: password }) });
+    }
+    if(!r.ok){ say(errText(r.data)); return; }
+    if(r.data && r.data.access_token){
+      const s = { access_token: r.data.access_token, user: r.data.user };
+      store(s);
+      if(!(await showHome(s))) say("Signed in, but your profile could not be loaded.");
+    } else {
+      say("Account created. Check your email to confirm it, then log in.", true);
+      setMode("login");
+    }
+  } catch(e){ say("Could not reach the server. Check your connection and try again."); }
+  finally { $("go").disabled = false; }
+};
+
+$("out").onclick = async () => {
+  try { if(session) await api("/auth/v1/logout", { method: "POST" }, session.access_token); } catch(e) {}
+  forget(); session = null;
+  $("home").classList.add("hide"); $("auth").classList.remove("hide");
+  $("password").value = ""; setMode("login");
+};
+
+const saved = recall();
+if(saved && saved.access_token && saved.user){ showHome(saved); }
+</script>
+</body>
+</html>
