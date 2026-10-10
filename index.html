@@ -1,73 +1,73 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RADO MART | Skills meet opportunity</title>
-<style>
-:root{--g:#0fa83e;--gd:#0a4d2f;--dk:#04271b;--bg:#f4f9f6;--t:#10241a;--m:#5b6f64;--l:#d6e5dc}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--t);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-button{font:inherit;cursor:pointer}
-.w{max-width:1000px;margin:0 auto;padding:0 16px}
-header{background:#fff;border-bottom:1px solid var(--l);position:sticky;top:0;z-index:5}
-.nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;min-height:66px;padding-top:6px;padding-bottom:6px}
-.lg{display:block;width:100px;aspect-ratio:1254/700;object-fit:cover;background:#fff}
-.btns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.b{border:1px solid var(--l);background:#fff;padding:9px 12px;border-radius:10px;font-weight:600;color:var(--gd)}
-.b.p{background:var(--g);border-color:var(--g);color:#fff}
-.b.del{padding:6px 10px;font-size:13px;color:#b3261e}
-.b.act{padding:7px 11px;font-size:13px}
-.b.act.no{color:#b3261e}
-.b:disabled{opacity:.6}
-.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.hi{font-weight:600;color:var(--gd);font-size:14px}
-@media(max-width:560px){.hi{display:none}.b{padding:8px 10px;font-size:14px}}
-.hero{background:var(--dk);color:#fff;padding:32px 0 36px}
-.hero .lg.big{width:230px;border-radius:14px;margin-bottom:22px}
-.hero h1{margin:0 0 8px;font-size:30px;line-height:1.15}
-.hero p{margin:0 0 20px;color:#bfe3cf}
-.sr{display:flex;gap:8px;max-width:560px}
-.sr input{flex:1;min-width:0;padding:14px;border:0;border-radius:10px;font-size:16px}
-.sr button{border:0;background:var(--g);color:#fff;font-weight:700;padding:0 18px;border-radius:10px}
-section.s{padding:28px 0 4px}
-h2{margin:0 0 14px;font-size:21px;color:var(--gd)}
-.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.cat{background:#fff;border:1px solid var(--l);border-radius:12px;padding:12px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--t)}
-.cat span{display:block;font-size:24px;margin-bottom:4px}
-.cat.on{border-color:var(--g);background:#eaf8ef}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
-.card{background:#fff;border:1px solid var(--l);border-radius:14px;overflow:hidden}
-.card[data-i]{cursor:pointer}
-.th{height:96px;display:grid;place-items:center;font-size:38px;background:linear-gradient(135deg,#d8f3e2,#9fdcb6)}
-.ci{padding:12px}
-.ci b{display:block;font-size:15px;line-height:1.3;margin-bottom:6px}
-.sm{font-size:13px;color:var(--m)}
-.pr{margin-top:8px;font-weight:700;color:var(--gd)}
-.fr{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.fc{background:#fff;border:1px solid var(--l);border-radius:14px;padding:16px;text-align:center}
-.av{width:56px;height:56px;border-radius:50%;background:var(--gd);color:#fff;font-weight:800;display:grid;place-items:center;margin:0 auto 8px}
-.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.how div{background:#fff;border:1px solid var(--l);border-radius:14px;padding:16px}
-.how b{color:var(--gd)}
-.note{font-size:13px;color:var(--m);margin-top:10px}
-footer{margin-top:32px;background:var(--dk);color:#bfe3cf;padding:20px 0;font-size:14px}
-.md{position:fixed;inset:0;background:rgba(4,39,27,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
-.md.on{display:flex}
-.box{width:100%;max-width:400px;max-height:94vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;position:relative}
-.x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:26px;color:var(--m)}
-.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:11px;margin:14px 0 4px}
-.tabs button{flex:1;border:0;background:none;padding:11px;border-radius:8px;font-weight:600;color:var(--m)}
-.tabs button.on{background:#fff;color:var(--gd);outline:1px solid var(--l)}
-label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
-.f{width:100%;padding:12px;border:1px solid var(--l);border-radius:10px;font-size:16px;background:#fff;color:var(--t);font-family:inherit}
-textarea.f{min-height:90px;resize:vertical}
-.go{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--g);color:#fff;font-size:16px;font-weight:700}
-.go:disabled{opacity:.6}
-.msg{min-height:22px;margin-top:12px;font-size:14px}
-.err{color:#b3261e}.ok{color:var(--gd)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--l);font-size:14px}
-.st{display:inline-block;padding:2px 9px;border-radius:99px;background:var(--bg);border:1px solid var(--l);font-size:12px;font-weight:600;color:var(--gd)}
-.big2{font-size:24px;font-weght:800;color:var(--gd);margin:8px 0}
-.hide{display:none}
-</style>
+</head>
+<body>
+<header><div class="w nav">
+  <img class="lg" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART">
+  <div class="btns" id="guest"><button class="b" id="openLogin">Log in</button><button class="b p" id="openJoin">Join</button></div>
+  <div class="btns hide" id="user"><span class="hi" id="hi"></span><button class="b p hide" id="dash">My services</button><button class="b" id="ords">My orders</button><button class="b" id="out">Log out</button></div>
+</div></header>
+
+<div class="hero"><div class="w">
+  <img class="lg big" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART - Skills meet opportunity">
+  <h1>Find the right freelancer for any job</h1>
+  <p>Hire talented people or sell your skills to clients worldwide.</p>
+  <div class="sr"><input id="q" placeholder="Try: logo, website, video"><button id="sb">Search</button></div>
+</div></div>
+
+<main class="w">
+  <section class="s"><h2>Browse categories</h2><div class="cats" id="cats"></div></section>
+  <section class="s" id="svs"><h2>Popular services</h2><div class="grid" id="sv"></div>
+    <p class="note" id="note">These are sample listings for the design preview. Real services from freelancers will appear here as soon as they are published.</p></section>
+  <section class="s"><h2>Featured freelancers</h2><div class="fr" id="fr"></div></section>
+  <section class="s"><h2>How RADO MART works</h2><div class="how">
+    <div><b>1. Find</b><br>Search services and compare freelancers.</div>
+    <div><b>2. Order</b><br>Pick a package and place your order.</div>
+    <div><b>3. Receive</b><br>Get your work delivered and review it.</div></div></section>
+</main>
+<footer><div class="w">&copy; RADO MART. Skills meet opportunity.</div></footer>
+
+<div class="md" id="md"><div class="box">
+  <button class="x" id="cl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)">Welcome to RADO MART</b>
+  <div class="tabs"><button id="tabLogin" class="on">Log in</button><button id="tabReg">Create account</button></div>
+  <div id="regOnly" class="hide">
+    <label for="fullName">Full name</label><input class="f" id="fullName" autocomplete="name">
+    <label for="role">I want to</label>
+    <select class="f" id="role"><option value="buyer">Hire freelancers</option><option value="freelancer">Sell my services</option></select>
+  </div>
+  <label for="email">Email</label><input class="f" id="email" type="email" autocomplete="email">
+  <label for="password">Password (6+ characters)</label><input class="f" id="password" type="password">
+  <button class="go" id="go">Log in</button>
+  <div class="msg" id="msg" role="status"></div>
+</div></div>
+
+<div class="md" id="dm"><div class="box">
+  <button class="x" id="dcl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)">My services</b>
+  <label for="sTitle">Service title</label><input class="f" id="sTitle" placeholder="e.g. I will design your logo">
+  <label for="sCat">Category</label><select class="f" id="sCat"></select>
+  <label for="sPrice">Starting price (USD)</label><input class="f" id="sPrice" type="number" min="5" step="1" inputmode="decimal">
+  <label for="sDesc">Description</label><textarea class="f" id="sDesc" placeholder="Describe what the buyer will get (20+ characters)"></textarea>
+  <button class="go" id="pub">Publish service</button>
+  <div class="msg" id="dmsg" role="status"></div>
+  <h2 style="font-size:17px;margin:18px 0 6px">Your published services</h2>
+  <div id="mine"></div>
+</div></div>
+
+<div class="md" id="om"><div class="box">
+  <button class="x" id="ocl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)" id="dT"></b>
+  <div class="sm" id="dM" style="margin-top:4px"></div>
+  <div class="big2" id="dP"></div>
+  <p id="dD" style="white-space:pre-wrap;line-height:1.5"></p>
+  <label for="oNote">Message to the freelancer (optional)</label>
+  <textarea class="f" id="oNote" maxlength="1000" placeholder="Tell them what you need"></textarea>
+  <button class="go" id="ord">Order now</button>
+  <div class="msg" id="omsg" role="status"></div>
+</div></div>
+
+<div class="md" id="xm"><div class="box">
+  <button class="x" id="xcl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)">My orders</b>
+  <div class="msg" id="xmsg" role="status" style="min-height:0;margin-top:8px"></div>
+  <div id="olist" style="margin-top:6px"></div>
+</div></div>
