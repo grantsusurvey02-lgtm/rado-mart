@@ -11,12 +11,14 @@ body{margin:0;background:var(--bg);color:var(--t);font-family:system-ui,-apple-s
 button{font:inherit;cursor:pointer}
 .w{max-width:1000px;margin:0 auto;padding:0 16px}
 header{background:#fff;border-bottom:1px solid var(--l);position:sticky;top:0;z-index:5}
-.nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+.nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;min-height:66px;padding-top:6px;padding-bottom:6px}
 .lg{display:block;width:100px;aspect-ratio:1254/700;object-fit:cover;background:#fff}
 .btns{display:flex;gap:8px;align-items:center}
 .b{border:1px solid var(--l);background:#fff;padding:9px 14px;border-radius:10px;font-weight:600;color:var(--gd)}
 .b.p{background:var(--g);border-color:var(--g);color:#fff}
+.b.del{padding:6px 10px;font-size:13px;color:#b3261e}
 .hi{font-weight:600;color:var(--gd);font-size:14px}
+@media(max-width:460px){.hi{display:none}}
 .hero{background:var(--dk);color:#fff;padding:32px 0 36px}
 .hero .lg.big{width:230px;border-radius:14px;margin-bottom:22px}
 .hero h1{margin:0 0 8px;font-size:30px;line-height:1.15}
@@ -53,11 +55,13 @@ footer{margin-top:32px;background:var(--dk);color:#bfe3cf;padding:20px 0;font-si
 .tabs button{flex:1;border:0;background:none;padding:11px;border-radius:8px;font-weight:600;color:var(--m)}
 .tabs button.on{background:#fff;color:var(--gd);outline:1px solid var(--l)}
 label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
-.f{width:100%;padding:12px;border:1px solid var(--l);border-radius:10px;font-size:16px;background:#fff;color:var(--t)}
+.f{width:100%;padding:12px;border:1px solid var(--l);border-radius:10px;font-size:16px;background:#fff;color:var(--t);font-family:inherit}
+textarea.f{min-height:90px;resize:vertical}
 .go{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--g);color:#fff;font-size:16px;font-weight:700}
 .go:disabled{opacity:.6}
 .msg{min-height:22px;margin-top:12px;font-size:14px}
 .err{color:#b3261e}.ok{color:var(--gd)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--l);font-size:14px}
 .hide{display:none}
 </style>
 </head>
@@ -65,7 +69,7 @@ label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
 <header><div class="w nav">
   <img class="lg" src="file_00000000224881f4b68d46fbb789e174.png" alt="RADO MART">
   <div class="btns" id="guest"><button class="b" id="openLogin">Log in</button><button class="b p" id="openJoin">Join</button></div>
-  <div class="btns hide" id="user"><span class="hi" id="hi"></span><button class="b" id="out">Log out</button></div>
+  <div class="btns hide" id="user"><span class="hi" id="hi"></span><button class="b p hide" id="dash">My services</button><button class="b" id="out">Log out</button></div>
 </div></header>
 
 <div class="hero"><div class="w">
@@ -78,7 +82,7 @@ label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
 <main class="w">
   <section class="s"><h2>Browse categories</h2><div class="cats" id="cats"></div></section>
   <section class="s" id="svs"><h2>Popular services</h2><div class="grid" id="sv"></div>
-    <p class="note">These are sample listings for the design preview. Real services from freelancers will appear here soon.</p></section>
+    <p class="note" id="note">These are sample listings for the design preview. Real services from freelancers will appear here as soon as they are published.</p></section>
   <section class="s"><h2>Featured freelancers</h2><div class="fr" id="fr"></div></section>
   <section class="s"><h2>How RADO MART works</h2><div class="how">
     <div><b>1. Find</b><br>Search services and compare freelancers.</div>
@@ -102,22 +106,45 @@ label{display:block;margin:14px 0 5px;font-size:14px;font-weight:600}
   <div class="msg" id="msg" role="status"></div>
 </div></div>
 
+<div class="md" id="dm"><div class="box">
+  <button class="x" id="dcl" aria-label="Close">&times;</button>
+  <b style="font-size:20px;color:var(--gd)">My services</b>
+  <label for="sTitle">Service title</label><input class="f" id="sTitle" placeholder="e.g. I will design your logo">
+  <label for="sCat">Category</label><select class="f" id="sCat"></select>
+  <label for="sPrice">Starting price (USD)</label><input class="f" id="sPrice" type="number" min="5" step="1" inputmode="decimal">
+  <label for="sDesc">Description</label><textarea class="f" id="sDesc" placeholder="Describe what the buyer will get (20+ characters)"></textarea>
+  <button class="go" id="pub">Publish service</button>
+  <div class="msg" id="dmsg" role="status"></div>
+  <h2 style="font-size:17px;margin:18px 0 6px">Your published services</h2>
+  <div id="mine"></div>
+</div></div>
+
 <script>
 const BASE="https://mhtjgbcewfnmnsvvgnli.supabase.co";
 const KEY="sb_publishable_0ozDkEkihNyFxsLf7Zegyw_M9NiCp9q";
 const $=i=>document.getElementById(i);
 const CATS=[["🎨","Design"],["✍️","Writing"],["💻","Programming"],["🎬","Video"],["📣","Marketing"],["🎵","Music"],["📊","Business"],["📷","Photo"]];
+const ICON={};CATS.forEach(c=>ICON[c[1]]=c[0]);
 const SV=[["Modern logo design for your brand","Design","Amaka O.",15,"4.9","🎨"],["SEO blog articles that rank","Writing","Tunde A.",20,"4.8","✍️"],["Responsive business website","Programming","Chinedu E.",80,"5.0","💻"],["Short video editing for social media","Video","Zainab K.",30,"4.9","🎬"],["Social media ad campaign setup","Marketing","Ife B.",40,"4.7","📣"],["Voice-over for ads and explainers","Music","Sam D.",25,"4.8","🎵"],["Business plan and pitch deck","Business","Ngozi P.",60,"4.9","📊"],["Product photo retouching","Photo","Dayo L.",12,"4.8","📷"]];
 const FR=[["Amaka O.","Brand designer","4.9"],["Chinedu E.","Web developer","5.0"],["Zainab K.","Video editor","4.9"],["Tunde A.","Content writer","4.8"]];
-let cat="",q="",mode="login",session=null;
+let cat="",q="",mode="login",session=null,REAL=[];
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
 function drawCats(){$("cats").innerHTML=CATS.map(c=>'<button class="cat'+(cat===c[1]?" on":"")+'" data-c="'+c[1]+'"><span>'+c[0]+'</span>'+c[1]+'</button>').join("");
   document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{cat=cat===b.dataset.c?"":b.dataset.c;drawCats();drawSv();$("svs").scrollIntoView({behavior:"smooth"})});}
-function drawSv(){const l=SV.filter(s=>(!cat||s[1]===cat)&&(!q||(s[0]+" "+s[1]+" "+s[2]).toLowerCase().includes(q)));
-  $("sv").innerHTML=l.length?l.map(s=>'<div class="card"><div class="th">'+s[5]+'</div><div class="ci"><b>'+s[0]+'</b><div class="sm">'+s[2]+' · ★ '+s[4]+'</div><div class="pr">From $'+s[3]+'</div></div></div>').join(""):'<p class="sm">No services match yet. Try another word.</p>';}
+function drawSv(){const base=REAL.length?REAL:SV;
+  const l=base.filter(s=>(!cat||s[1]===cat)&&(!q||(s[0]+" "+s[1]+" "+s[2]).toLowerCase().includes(q)));
+  $("note").classList.toggle("hide",REAL.length>0);
+  $("sv").innerHTML=l.length?l.map(s=>'<div class="card"><div class="th">'+s[5]+'</div><div class="ci"><b>'+esc(s[0])+'</b><div class="sm">'+esc(s[2])+' · ★ '+esc(s[4])+'</div><div class="pr">From $'+esc(s[3])+'</div></div></div>').join(""):'<p class="sm">No services match yet. Try another word.</p>';}
 function drawFr(){$("fr").innerHTML=FR.map(f=>'<div class="fc"><div class="av">'+f[0][0]+'</div><b>'+f[0]+'</b><div class="sm">'+f[1]+'</div><div class="sm">★ '+f[2]+'</div></div>').join("");}
 function doSearch(){q=$("q").value.trim().toLowerCase();drawSv();$("svs").scrollIntoView({behavior:"smooth"});}
 $("sb").onclick=doSearch;$("q").onkeydown=e=>{if(e.key==="Enter")doSearch()};
+
+async function api(path,opts,token){const h={apikey:KEY,"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
+  const r=await fetch(BASE+path,Object.assign({},opts||{},{headers:h}));let d=null;try{d=await r.json()}catch(e){}return{ok:r.ok,data:d}}
+function errText(d){const m=d&&(d.msg||d.error_description||d.message);if(m&&/jwt expired/i.test(m))return"Your login expired. Please log out and log in again.";return m||"Something went wrong. Please try again."}
+async function loadSv(){const r=await api("/rest/v1/services?select=title,category,price_usd,profiles(full_name)&is_active=eq.true&order=created_at.desc&limit=60");
+  REAL=r.ok&&Array.isArray(r.data)?r.data.map(x=>[x.title,x.category,(x.profiles&&x.profiles.full_name)||"Freelancer",x.price_usd,"New",ICON[x.category]||"⭐"]):[];drawSv()}
 
 function say(t,ok){const m=$("msg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
 function setMode(m){mode=m;$("tabLogin").classList.toggle("on",m==="login");$("tabReg").classList.toggle("on",m==="register");$("regOnly").classList.toggle("hide",m==="login");$("go").textContent=m==="login"?"Log in":"Create account";say("")}
@@ -126,9 +153,6 @@ $("openLogin").onclick=()=>openM("login");$("openJoin").onclick=()=>openM("regis
 $("tabLogin").onclick=()=>setMode("login");$("tabReg").onclick=()=>setMode("register");
 $("cl").onclick=()=>$("md").classList.remove("on");
 
-async function api(path,opts,token){const h={apikey:KEY,"Content-Type":"application/json"};if(token)h.Authorization="Bearer "+token;
-  const r=await fetch(BASE+path,Object.assign({},opts||{},{headers:h}));let d=null;try{d=await r.json()}catch(e){}return{ok:r.ok,data:d}}
-function errText(d){return(d&&(d.msg||d.error_description||d.message))||"Something went wrong. Please try again."}
 function store(s){try{localStorage.setItem("rm_session",JSON.stringify(s))}catch(e){}}
 function recall(){try{return JSON.parse(localStorage.getItem("rm_session"))}catch(e){return null}}
 function forget(){try{localStorage.removeItem("rm_session")}catch(e){}}
@@ -138,8 +162,9 @@ async function showUser(s){
   if(!r.ok){forget();return false}
   const p=r.data&&r.data[0];session=s;
   $("guest").classList.add("hide");$("user").classList.remove("hide");
+  $("dash").classList.toggle("hide",!(p&&p.role==="freelancer"));
   const n=(p&&p.full_name)||s.user.email;
-  $("hi").textContent="Hi, "+n.split(" ")[0]+(p?" ("+(p.role==="freelancer"?"Freelancer":p.role==="admin"?"Admin":"Buyer")+")":"");
+  $("hi").textContent="Hi, "+n.split(" ")[0];
   return true}
 
 $("go").onclick=async()=>{
@@ -159,9 +184,28 @@ $("go").onclick=async()=>{
   finally{$("go").disabled=false}};
 
 $("out").onclick=async()=>{try{if(session)await api("/auth/v1/logout",{method:"POST"},session.access_token)}catch(e){}
-  forget();session=null;$("user").classList.add("hide");$("guest").classList.remove("hide")};
+  forget();session=null;$("dm").classList.remove("on");$("user").classList.add("hide");$("guest").classList.remove("hide")};
 
-drawCats();drawSv();drawFr();
+function dmsg(t,ok){const m=$("dmsg");m.textContent=t;m.className="msg "+(ok?"ok":"err")}
+async function myList(){
+  const r=await api("/rest/v1/services?freelancer_id=eq."+session.user.id+"&select=id,title,price_usd&order=created_at.desc",{},session.access_token);
+  $("mine").innerHTML=r.ok&&r.data.length?r.data.map(s=>'<div class="row"><span>'+esc(s.title)+' · $'+esc(s.price_usd)+'</span><button class="b del" data-id="'+esc(s.id)+'">Delete</button></div>').join(""):'<p class="sm">You have no services yet.</p>';
+  document.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{await api("/rest/v1/services?id=eq."+b.dataset.id,{method:"DELETE"},session.access_token);myList();loadSv()})}
+$("dash").onclick=()=>{dmsg("");$("dm").classList.add("on");myList()};
+$("dcl").onclick=()=>$("dm").classList.remove("on");
+$("pub").onclick=async()=>{
+  const t=$("sTitle").value.trim(),d=$("sDesc").value.trim(),p=parseFloat($("sPrice").value);
+  if(t.length<5||d.length<20||!(p>=5)){dmsg("Title needs 5+ characters, description 20+, and price $5 or more.");return}
+  $("pub").disabled=true;dmsg("Publishing...",true);
+  try{
+    const r=await api("/rest/v1/services",{method:"POST",headers:{},body:JSON.stringify({title:t,category:$("sCat").value,description:d,price_usd:p})},session.access_token);
+    if(r.ok){$("sTitle").value="";$("sDesc").value="";$("sPrice").value="";dmsg("Published. Your service now appears on the homepage.",true);myList();loadSv()}
+    else dmsg(errText(r.data));
+  }catch(e){dmsg("Could not reach the server. Try again.")}
+  finally{$("pub").disabled=false}};
+
+$("sCat").innerHTML=CATS.map(c=>"<option>"+c[1]+"</option>").join("");
+drawCats();drawSv();drawFr();loadSv();
 const saved=recall();if(saved&&saved.access_token&&saved.user)showUser(saved);
 </script>
 </body>
